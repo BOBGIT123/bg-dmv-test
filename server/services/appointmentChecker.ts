@@ -86,7 +86,7 @@ export class AppointmentChecker {
           });
 
           // Wait for dynamic content to load
-          await page.waitForTimeout(5000);
+          await page.waitForDelay(5000);
 
           // Look for available appointment slots
           // Waitwell pages typically show available slots with classes like 'available', 'time-slot', or in calendar format
