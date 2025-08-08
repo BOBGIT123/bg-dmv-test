@@ -97,6 +97,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       await emailService.sendTestEmail();
       res.json({ success: true, message: "Test email sent successfully" });
     } catch (error) {
+      console.error("Test email error:", error);
       res.status(500).json({ 
         message: error instanceof Error ? error.message : "Failed to send test email" 
       });
