@@ -10,7 +10,7 @@ export class EmailService {
       throw new Error('Email configuration not found');
     }
 
-    const transporter = nodemailer.createTransporter({
+    const transporter = nodemailer.createTransport({
       host: emailConfig.smtpServer,
       port: emailConfig.smtpPort,
       secure: emailConfig.smtpPort === 465,
@@ -42,7 +42,7 @@ export class EmailService {
     if (stats) {
       await storage.upsertMonitoringStats({
         ...stats,
-        emailsSent: stats.emailsSent + 1,
+        emailsSent: (stats.emailsSent || 0) + 1,
       });
     }
   }
@@ -54,7 +54,7 @@ export class EmailService {
       throw new Error('Email configuration not found');
     }
 
-    const transporter = nodemailer.createTransporter({
+    const transporter = nodemailer.createTransport({
       host: emailConfig.smtpServer,
       port: emailConfig.smtpPort,
       secure: emailConfig.smtpPort === 465,
