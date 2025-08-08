@@ -1,0 +1,88 @@
+import time
+import smtplib
+from email.mime.text import MIMEText
+from datetime import datetime, timedelta
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.common.by import By
+
+# === CONFIGURATION ===
+EMAIL_TO = "psn@bobbygill.co.uk"
+EMAIL_FROM = "your_email@example.com"   # your sender email (e.g., Gmail)
+EMAIL_PASSWORD = "your_email_password" # app password or real password
+SMTP_SERVER = "smtp.gmail.com"
+SMTP_PORT = 587
+
+SERVICES = [
+    {"name": "Henderson DMV (All Services)", "url": "https://hendersondmv.waitwell.us/book/1026"},
+    {"name": "Henderson DMV (DL)", "url": "https://hendersondmv.waitwell.us/book/994"},
+    {"name": "West Flamingo DMV (All Services)", "url": "https://westflamingodmv.waitwell.us/book/1260"},
+    {"name": "West Flamingo DMV (DL)", "url": "https://westflamingodmv.waitwell.us/book/1228"},
+    {"name": "North Decatur DMV (All Services)", "url": "https://northdecaturdmv.waitwell.us/book/1143"},
+    {"name": "North Decatur DMV (DL)", "url": "https://northdecaturdmv.waitwell.us/book/1111"},
+]
+
+def get_next_working_days(count=5):
+    days = []
+    today = datetime.now()
+    day = today
+    while len(days) < count:
+        if day.weekday() < 5:  # Monday=0, Friday=4
+            days.append(day.date())
+        day += timedelta(days=1)
+    return days
+
+def send_email(subject, body):
+    msg = MIMEText(body)
+    msg["From"] = EMAIL_FROM
+    msg["To"] = EMAIL_TO
+    msg["Subject"] = subject
+
+    with smtplib.SMTP(SMTP_SERVER, SMTP_PORT) as smtp:
+        smtp.starttls()
+        smtp.login(EMAIL_FROM, EMAIL_PASSWORD)
+        smtp.sendmail(EMAIL_FROM, EMAIL_TO, msg.as_string())
+    print(f"Email sent: {subject}")
+
+def check_appointments():
+    options = Options()
+    options.add_argument("--headless")
+    options.add_argument("--no-sandbox")
+    options.add_argument("--disable-dev-shm-usage")
+
+    driver = webdriver.Chrome(options=options)
+
+    target_dates = get_next_working_days()
+
+    for service in SERVICES:
+        print(f"Checking {service['name']} at {service['url']}")
+        driver.get(service["url"])
+
+        # Wait for page to load dynamic content; adjust if needed
+        time.sleep(10)
+
+        try:
+            # Find available appointment elements - this will depend on page structure
+            # Waitwell pages usually list available slots inside elements with class 'available' or inside a calendar
+            slots = driver.find_elements(By.CSS_SELECTOR, ".available, .time-slot")
+
+            for slot in slots:
+                text = slot.text.strip()
+                # Try to parse date/time from text, e.g. "Tue Aug 8 10:00 AM"
+                for date in target_dates:
+                    if date.strftime("%a %b %d") in text:
+                        # Found appointment within target dates
+                        subject = f"DMV appointment at {service['name']} at {text}"
+                        body = f"Book here: {service['url']}"
+                        send_email(subject, body)
+                        driver.quit()
+                        return  # stop after first found appointment
+
+        except Exception as e:
+            print(f"Error parsing appointments on {service['name']}: {e}")
+
+    driver.quit()
+    print("No appointments found.")
+
+if __name__ == "__main__":
+    check_appointments()
