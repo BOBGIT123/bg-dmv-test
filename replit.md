@@ -4,9 +4,25 @@
 
 This is a web application that monitors Nevada DMV appointment availability across multiple locations and sends email notifications when appointments become available. The system provides automated checking at configurable intervals and includes a dashboard for management and monitoring.
 
+## Recent Changes
+
+**January 8, 2025**
+- ✅ Email system configured and tested successfully
+- ✅ All 6 Nevada DMV locations enabled (Henderson, West Flamingo, North Decatur)
+- ✅ 5-minute check interval system with manual on/off toggle
+- ✅ Browser dependencies installed and Puppeteer configured for Replit
+- ✅ System ready for automated appointment monitoring
+
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
+
+### Email Configuration
+- Notification Email: `psn@bobbygill.co.uk`
+- SMTP Server: `smtp.gmail.com`
+- SMTP Port: `587`
+- Uses Gmail app password authentication
+- Test email functionality: ✅ Working
 
 ## System Architecture
 
