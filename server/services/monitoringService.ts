@@ -1,7 +1,7 @@
 import cron from 'node-cron';
 import { storage } from '../storage';
 import { appointmentChecker } from './appointmentChecker';
-import { emailService } from './emailService';
+import { notificationService } from './notificationService';
 
 export class MonitoringService {
   private task: cron.ScheduledTask | null = null;
@@ -84,8 +84,8 @@ export class MonitoringService {
       }
 
       if (slots.length > 0) {
-        // Send email notification
-        await emailService.sendAppointmentNotification(slots);
+        // Send notifications (email and SMS)
+        await notificationService.sendAppointmentNotification(slots);
 
         // Log appointment found
         await storage.createActivityLog({

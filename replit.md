@@ -6,6 +6,13 @@ This is a web application that monitors Nevada DMV appointment availability acro
 
 ## Recent Changes
 
+**August 8, 2025**
+- ✅ SMS text message notifications added using Twilio
+- ✅ Unified notification system (both email and SMS)
+- ✅ SMS configuration UI with toggle and test functionality  
+- ✅ Updated dashboard with SMS statistics
+- ✅ 30-minute check interval configured and working
+
 **January 8, 2025**
 - ✅ Email system configured and tested successfully
 - ✅ All 6 Nevada DMV locations enabled (Henderson, West Flamingo, North Decatur)

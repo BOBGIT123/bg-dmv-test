@@ -19,6 +19,12 @@ export const emailConfig = pgTable("email_config", {
   smtpPort: integer("smtp_port").notNull(),
   smtpUsername: text("smtp_username"),
   smtpPassword: text("smtp_password"),
+  // SMS Configuration
+  smsEnabled: boolean("sms_enabled").default(false),
+  phoneNumber: text("phone_number"),
+  twilioAccountSid: text("twilio_account_sid"),
+  twilioAuthToken: text("twilio_auth_token"),
+  twilioPhoneNumber: text("twilio_phone_number"),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
@@ -46,6 +52,7 @@ export const monitoringStats = pgTable("monitoring_stats", {
   totalChecks: integer("total_checks").default(0),
   appointmentsFound: integer("appointments_found").default(0),
   emailsSent: integer("emails_sent").default(0),
+  smsSent: integer("sms_sent").default(0),
   lastCheckTime: timestamp("last_check_time"),
   uptime: integer("uptime").default(0), // minutes
   updatedAt: timestamp("updated_at").defaultNow(),
@@ -60,6 +67,11 @@ export const insertDmvLocationSchema = createInsertSchema(dmvLocations).omit({
 export const insertEmailConfigSchema = createInsertSchema(emailConfig).omit({
   id: true,
   updatedAt: true,
+}).extend({
+  twilioAccountSid: z.string().optional(),
+  twilioAuthToken: z.string().optional(),
+  twilioPhoneNumber: z.string().optional(),
+  phoneNumber: z.string().optional(),
 });
 
 export const insertMonitoringSettingsSchema = createInsertSchema(monitoringSettings).omit({

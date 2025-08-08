@@ -4,6 +4,8 @@ import { storage } from "./storage";
 import { monitoringService } from "./services/monitoringService";
 import { appointmentChecker } from "./services/appointmentChecker";
 import { emailService } from "./services/emailService";
+import { smsService } from "./services/smsService";
+import { notificationService } from "./services/notificationService";
 import {
   insertDmvLocationSchema,
   insertEmailConfigSchema,
@@ -67,9 +69,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/email-config", async (_req, res) => {
     try {
       const config = await storage.getEmailConfig();
-      // Don't send password in response
+      // Don't send sensitive fields in response
       if (config) {
-        const { smtpPassword, ...safeConfig } = config;
+        const { smtpPassword, twilioAuthToken, ...safeConfig } = config;
         res.json(safeConfig);
       } else {
         res.json(null);
@@ -84,8 +86,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const config = insertEmailConfigSchema.parse(req.body);
       const updatedConfig = await storage.upsertEmailConfig(config);
       
-      // Don't send password in response
-      const { smtpPassword, ...safeConfig } = updatedConfig;
+      // Don't send sensitive fields in response
+      const { smtpPassword, twilioAuthToken, ...safeConfig } = updatedConfig;
       res.json(safeConfig);
     } catch (error) {
       res.status(400).json({ message: "Invalid email configuration" });
@@ -100,6 +102,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.error("Test email error:", error);
       res.status(500).json({ 
         message: error instanceof Error ? error.message : "Failed to send test email" 
+      });
+    }
+  });
+
+  app.post("/api/sms-config/test", async (_req, res) => {
+    try {
+      await smsService.sendTestSms();
+      res.json({ success: true, message: "Test SMS sent successfully" });
+    } catch (error) {
+      console.error("Test SMS error:", error);
+      res.status(500).json({ 
+        message: error instanceof Error ? error.message : "Failed to send test SMS" 
+      });
+    }
+  });
+
+  app.post("/api/notifications/test", async (_req, res) => {
+    try {
+      const results = await notificationService.sendTestNotifications();
+      const messages = [];
+      if (results.email) messages.push("email");
+      if (results.sms) messages.push("SMS");
+      
+      if (messages.length === 0) {
+        return res.status(400).json({ message: "No notification methods are configured" });
+      }
+      
+      res.json({ 
+        success: true, 
+        message: `Test ${messages.join(" and ")} sent successfully`,
+        results 
+      });
+    } catch (error) {
+      console.error("Test notifications error:", error);
+      res.status(500).json({ 
+        message: error instanceof Error ? error.message : "Failed to send test notifications" 
       });
     }
   });
