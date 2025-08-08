@@ -82,13 +82,13 @@ export class MemStorage implements IStorage {
         name: "North Decatur DMV (All Services)",
         url: "https://northdecaturdmv.waitwell.us/book/1143",
         type: "All Services",
-        enabled: false,
+        enabled: true,
       },
       {
         name: "North Decatur DMV (DL)",
         url: "https://northdecaturdmv.waitwell.us/book/1111",
         type: "Driver's License Only",
-        enabled: false,
+        enabled: true,
       },
     ];
 
